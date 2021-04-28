@@ -1,0 +1,8 @@
+# Ignore generated files & directories
+.args
+docker-compose.swarm.yml
+latest-snapshot
+9c-main-snapshot.zip
+logs
+backup
+docs

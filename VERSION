@@ -1,0 +1,8 @@
+project="swarm-manager"
+version="1.0.0-alpha"
+docker="cryptokasm/9c-swarm-manager"
+github="https://github.com/CryptoKasm/9c-swarm-manager"
+commit=""
+
+maintainer="CryptoKasm"
+discord="https://discord.gg/CYaSzs4CSk"
