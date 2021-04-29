@@ -47,12 +47,6 @@ EOF
       - $CONTAINERNAME:/app/data
       - $CONTAINERNAME:/app/planetarium/keystore
       - $CONTAINERNAME:/secret
-    healthcheck:
-      test: ["CMD", "./scripts/healthcheck.sh", "--check-ping"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 3
-      start_period: 60s
     logging:
       driver: "json-file"
       options:
@@ -77,7 +71,8 @@ EOF
       '--graphql-server',
       '--graphql-port=23061',
       '--graphql-secret-token-path=/secret/token',
-      "--miner-private-key=$PRIVATE_KEY"]
+      "--miner-private-key=$PRIVATE_KEY",
+      '--tip-timeout=120']
 EOF
     done
 
