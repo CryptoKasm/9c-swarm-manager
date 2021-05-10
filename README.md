@@ -1,4 +1,5 @@
 ### Nine Chronicles | Community Tool
+
 # Swarm Manager
 
 Nine Chronicles is a fantasy MMORPG, set in a vast fantasy world powered by groundbreaking blockchain technology, that gives players the freedom to play how they want: exploring, crafting, mining or governing in a uniquely moddable, open-source adventure.
@@ -10,17 +11,21 @@ This project was created to provide an easy solution for those wanting to mine t
 <br>
 
 #
-### Notes: 
+
+### Notes:
+
 - **<span style="color:green">TIP:</span> Windows Users: MAKE SURE TO START DOCKER, before continuing to [Section 2](#Linux).**
 
 - **<span style="color:red">WARNING:</span> Installing the Swarm Miner enables Hyper-V on Windows. This could cause issues with VMware Workstation if it is installed.**
 
 - **<span style="color:red">WARNING:</span> Some anti-virus software may flag the miner as malicious, please add an exception or disable and retry before contacting support.**
+
 #
 
 <br>
 
 ### Features:
+
 - Dockerized image
 - Snapshot management
 - Auto Updater, based on this URL: https://download.nine-chronicles.com/apv.json
@@ -30,7 +35,9 @@ This project was created to provide an easy solution for those wanting to mine t
 <br>
 
 ## Requirements
+
 - For Normal Usage
+
   - Docker
 
 - For Development
@@ -42,18 +49,17 @@ This project was created to provide an easy solution for those wanting to mine t
 <br>
 
 ## Usage
-***Method 1: Deploy via CMD***
+
+**_Method 1: Deploy via CMD_**
 
 ```bash
 # Example using PRIVATE_KEY
-docker run -d -v "/var/run/docker.sock:/var/run/docker.sock" \
---env PRIVATE_KEY=000000000000 \
---name Swarm-Manager cryptokasm/9c-swarm-manager:latest
+docker run -d -v "/var/run/docker.sock:/var/run/docker.sock" --env PRIVATE_KEY=000000000000 --env MINERS=1 --name 9c-swarm-manager cryptokasm/9c-swarm-manager:latest
 ```
 
 <br>
 
-***Method 2: Deploy via docker-compose.yml***
+**_Method 2: Deploy via docker-compose.yml_**
 
 ```yml
 # Example using PRIVATE_KEY
@@ -61,22 +67,15 @@ version: '3'
 
 services:
   manager:
-    container_name: manager
-    build: 
-      context: .
-      dockerfile: Dockerfile
+    container_name: 9c-swarm-manager
+    image: cryptokasm/9c-swarm-manager:latest
     volumes:
       - /var/run/docker.sock:/var/run/docker-host.sock
-    healthcheck:
-      test: ["CMD", "./scripts/healthcheck.sh", "--check-ping"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 3
-      start_period: 30s
-    environment: 
+    environment:
       - PRIVATE_KEY=000000000000
-
+      - MINERS=1
 ```
+
 ```yml
 # Default Settings
 # Add a setting you would like to change to the environment argument
@@ -117,7 +116,8 @@ MINER_LOG_FILTERS="ALL"
 
 <br>
 
-***Method 3: Build Image & Deploy***
+**_Method 3: Build Image & Deploy_**
+
 ```bash
 # 1. Clone from Github
   git clone https://github.com/CryptoKasm/9c-swarm-manager.git
@@ -136,6 +136,7 @@ MINER_LOG_FILTERS="ALL"
 <br>
 
 # Contributing
+
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 Please make sure to update tests as appropriate.
@@ -143,13 +144,17 @@ Please make sure to update tests as appropriate.
 <br>
 
 # Community & Support
+
 Come join us in the community Discord server! If you have any questions, don't hesitate to ask!<br/>
+
 - **Planetarium - [Discord](https://discord.gg/k6z2GS4yh2)**
 
 Support & Bug Reports<br/>
+
 - **CrytpoKasm - [Discord](https://discord.gg/k6z2GS4yh2)**
 
 <br>
 
 # License
+
 [GNU GPLv3](https://choosealicense.com/licenses/gpl-3.0/)
