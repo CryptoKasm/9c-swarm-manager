@@ -3,18 +3,18 @@ version: '3'
 services:
   manager:
     container_name: manager
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     volumes:
       - /var/run/docker.sock:/var/run/docker-host.sock
     healthcheck:
-      test: ["CMD", "./scripts/healthcheck.sh", "--check-ping"]
+      test: ['CMD', './scripts/healthcheck.sh', '--check-ping']
       interval: 1m30s
       timeout: 30s
       retries: 3
       start_period: 30s
-    environment: 
-    #   - DEBUG=1
-    #   - TRACE=1
-    #   - PRIVATE_KEY=
+    environment:
+      - DEBUG=1
+      - TRACE=1
+      - DEV_MODE=true

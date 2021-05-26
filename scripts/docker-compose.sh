@@ -32,6 +32,7 @@ EOF
         log trace "    --[$composeFile] CONTAINER_NAME: $CONTAINERNAME"
         log trace "    --[$composeFile] PEER_PORT: $PEERPORT"
         log trace "    --[$composeFile] GRAPHQL_PORT: $GRAPHQLPORT"
+        log trace "    --[$composeFile] DISABLE_CORS: $DISABLE_CORS"
 
         cat <<EOF >>$composeFile
   $CONTAINERNAME:
@@ -68,6 +69,8 @@ EOF
       '--ice-server=turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn-us3.planetarium.dev:3478',
       '--ice-server=turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn-us4.planetarium.dev:3478',
       '--ice-server=turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn-us5.planetarium.dev:3478',
+      $DISABLE_MINING_ENTRY
+      $DISABLE_CORS_ENTRY
       '--graphql-server',
       '--graphql-port=23061',
       '--graphql-secret-token-path=/secret/token',
@@ -96,6 +99,28 @@ EOF
     fi
 }
 
+# Add/Remove arguments from docker-compose.yml
+function setCORSPolicy() {  
+  if [ "$DISABLE_CORS" == false ]; then 
+    DISABLE_CORS_ENTRY=''
+    log trace "    --DISABLE_CORS_ENTRY: $DISABLE_CORS_ENTRY"
+  elif [ "$DISABLE_CORS" == true ]; then
+    DISABLE_CORS_ENTRY=''\'--no-cors\',''
+    log trace "    --DISABLE_CORS_ENTRY: $DISABLE_CORS_ENTRY"
+  fi
+}
+
+# Add/Remove arguments from docker-compose.yml
+function setMining() {  
+  if [ "$DISABLE_MINING" == false ]; then 
+    DISABLE_MINING_ENTRY=''
+    log trace "    --DISABLE_MINING_ENTRY: $DISABLE_MINING_ENTRY"
+  elif [ "$DISABLE_MINING" == true ]; then
+    DISABLE_MINING_ENTRY=''\'--no-miner\',''
+    log trace "    --DISABLE_MINING_ENTRY: $DISABLE_MINING_ENTRY"
+  fi
+}
+
 ###############################
 # TODO_MODIFY: Add function to test recreate only if different
 function dockerCompose() {
@@ -105,11 +130,15 @@ function dockerCompose() {
       log debug "  --found existing file"
       rm -f $composeFile
       log debug "  --cleaned existing file"
-      buildComposeFile
     else
       log debug "  --file not found"
-      buildComposeFile
+
     fi
+
+    setMining
+    setCORSPolicy
+    buildComposeFile
+
     echo
 }
 ###############################

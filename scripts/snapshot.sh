@@ -32,7 +32,8 @@ refreshSnapshot() {
     log trace "    --SNAPUNZIP: $SNAPUNZIP"
     log trace "    --SNAPZIP: $SNAPZIP"
 
-    if [ "$TRACE" == "1" ]; then 
+    if [[ "$TRACE" == "1" ]]; then 
+        log info "  --cleaning docker container"
         docker-compose -f $composeFile down -v --remove-orphans
         docker-compose -f $composeFile up -d
         docker-compose -f $composeFile stop
@@ -64,7 +65,7 @@ refreshSnapshot() {
     if [ "$TRACE" == "1" ]; then 
         curl -# -O $SNAPSHOT
     else
-        curl -# -O $SNAPSHOT &> /dev/null
+        curl -# -O $SNAPSHOT #&> /dev/null
     fi
 
     log debug "  --unzipping snapshot"

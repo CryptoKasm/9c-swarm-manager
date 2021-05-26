@@ -137,11 +137,16 @@ function checkParams() {
 
     log debug "  --loading PARAMS"
 
-    BUILDPARAMSURL="https://download.nine-chronicles.com/apv.json"
-    newBUILDPARAMS=$(curl -s $BUILDPARAMSURL)
+    BUILDPARAMSURL="https://download.nine-chronicles.com/apv.json?v=$RANDOM"
+    newBUILDPARAMS=$(curl $BUILDPARAMSURL \
+        -s \
+        -L \
+        -H "Cache-Control: no-cache, no-store, must-revalidate" \
+        -H "Pragma: no-cache" \
+        -H "Expires: 0")
     newAPV=$(echo $newBUILDPARAMS | jq -r '.apv')
     newDOCKER_IMAGE=$(echo $newBUILDPARAMS | jq -r '.docker')
-    newSNAPSHOT=$(echo $newBUILDPARAMS | jq -r '."snapshotPaths:"[0]')
+    newSNAPSHOT=$(echo $newBUILDPARAMS | jq -r '.snapshotPaths[0]')
 
     log trace "    --newURL: $newBUILDPARAMS"
     log trace "    --newAPV: $newAPV"
@@ -188,8 +193,25 @@ function checkARGs() {
 function saveARGs() {
     log info "> Saving runtime ARGS to file..."
 
-    if [ -z $PRIVATE_KEY ]; then
-        log error "[saveARGS] PRIVATE_KEY not found! Please set at runtime!"
+    if [ "$DEV_MODE" == true ]; then 
+        log debug "  --Developer Mode: Enabled"
+
+        if [[ "$PRIVATE_KEY" == "PUT_YOUR_PRIVATE_KEY_HERE" ]]; then
+            USE_DEMO_KEY="true"
+        fi
+        DISABLE_MINING="true"
+        DISABLE_CORS="true"
+
+        log trace "    --Dev Override: [USE_DEMO_KEY=$USE_DEMO_KEY]"
+        log trace "    --Dev Override: [DISABLE_MINING=$DISABLE_MINING]"
+        log trace "    --Dev Override: [DISABLE_CORS=$DISABLE_CORS]"
+    fi
+
+    if [[ "$USE_DEMO_KEY" == true ]]; then
+        log debug "  --Using Demo Account"
+        PRIVATE_KEY="10285a19fab2b4f7476efdaba07ed55e9b03790c4ff6f3fc7c6b2d0852a27fa2" 
+    elif [[ "$PRIVATE_KEY" == "PUT_YOUR_PRIVATE_KEY_HERE" ]]; then
+        log error "[saveARGS] PRIVATE_KEY not set! Please set at docker runtime!"
         exitMain
     fi
 
@@ -201,6 +223,9 @@ function saveARGs() {
     log trace "    --creating new file"
     cat <<EOF >$argsFile
 DEBUG=$DEBUG
+TRACE=$TRACE
+DEV_MODE=$DEV_MODE
+DISABLE_MINING=$DISABLE_MINING
 PRIVATE_KEY=$PRIVATE_KEY
 MINERS=$MINERS
 GRAPHQL_PORT=$GRAPHQL_PORT
@@ -208,6 +233,7 @@ PEER_PORT=$PEER_PORT
 RAM_LIMIT=$RAM_LIMIT
 RAM_RESERVE=$RAM_RESERVE
 AUTHORIZE_GRAPHQL=$AUTHORIZE_GRAPHQL
+DISABLE_CORS=$DISABLE_CORS
 AUTO_RESTART=$AUTO_RESTART
 MINER_LOG_FILTERS=$MINER_LOG_FILTERS
 EOF

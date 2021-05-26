@@ -40,6 +40,8 @@ RUN apt-get update \
     # Clean up
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* ${WORKDIRP}/.devcontainer/library-scripts/
 
+RUN apt-get install jq -y
+
 #-----------------------------------------------------------
 # Settings
 #-----------------------------------------------------------
@@ -50,17 +52,23 @@ ENV DEBUG="1"
 # Enable/disable Advanced Debugging
 ENV TRACE="0"
 
+# Development mode with less security and a demo account
+ENV DEV_MODE="false"
+
+# Disable mining (Node only)
+ENV DISABLE_MINING="false"
+
 # Nine Chronicles Private Key **KEEP SECRET**
-ENV PRIVATE_KEY=""
+ENV PRIVATE_KEY="PUT_YOUR_PRIVATE_KEY_HERE"
 
 # Amount of miners to deploy
 ENV MINERS="1"
 
 # GraphQL Forwarding Port
-ENV GRAPHQL_PORT="23070"
+ENV GRAPHQL_PORT="23062"
 
 # Peer Forwarding Port
-ENV PEER_PORT="31270"
+ENV PEER_PORT="31235"
 
 # Set MAX RAM Per Miner **PROTECTION FROM MEMORY LEAKS**
 ENV RAM_LIMIT="4096M"
@@ -70,6 +78,9 @@ ENV RAM_RESERVE="2048M"
 
 # Enable GraphQL Query Commands
 ENV AUTHORIZE_GRAPHQL="1"
+
+# Enable/Disable CORS policy
+ENV DISABLE_CORS="false"
 
 # Auto-restart after set time (in hours)
 ENV AUTO_RESTART="2"
