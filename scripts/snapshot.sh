@@ -62,11 +62,7 @@ refreshSnapshot() {
     cd latest-snapshot
     
     log debug "  --downloading snapshot"
-    if [ "$TRACE" == "1" ]; then 
-        curl -# -O $SNAPSHOT
-    else
-        curl -# -O $SNAPSHOT #&> /dev/null
-    fi
+    curl -# -O $SNAPSHOT
 
     log debug "  --unzipping snapshot"
     unzip 9c-main-snapshot.zip &> /dev/null
