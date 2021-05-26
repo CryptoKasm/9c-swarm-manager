@@ -201,10 +201,14 @@ function saveARGs() {
         fi
         DISABLE_MINING="true"
         DISABLE_CORS="true"
+        GRAPHQL_PORT="23075"
+        PEER_PORT="31275"
 
         log trace "    --Dev Override: [USE_DEMO_KEY=$USE_DEMO_KEY]"
         log trace "    --Dev Override: [DISABLE_MINING=$DISABLE_MINING]"
         log trace "    --Dev Override: [DISABLE_CORS=$DISABLE_CORS]"
+        log trace "    --Dev Override: [GRAPHQL_PORT=$GRAPHQL_PORT]"
+        log trace "    --Dev Override: [PEER_PORT=$PEER_PORT]"
     fi
 
     if [[ "$USE_DEMO_KEY" == true ]]; then
