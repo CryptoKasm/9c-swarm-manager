@@ -198,6 +198,8 @@ function saveARGs() {
 
         if [[ "$PRIVATE_KEY" == "PUT_YOUR_PRIVATE_KEY_HERE" ]]; then
             USE_DEMO_KEY="true"
+        else
+            USE_DEMO_KEY="false"
         fi
         DISABLE_MINING="true"
         DISABLE_CORS="true"
