@@ -73,7 +73,6 @@ EOF
       $DISABLE_CORS_ENTRY
       '--graphql-server',
       '--graphql-port=23061',
-      '--graphql-secret-token-path=/secret/token',
       "--miner-private-key=$PRIVATE_KEY",
       '--tip-timeout=120']
 EOF
