@@ -1,6 +1,7 @@
 #!/bin/bash
 # source ./scripts/log.sh
 # source ./scripts/lib.sh
+# source ./scripts/graphql-queries.sh
 
 # Check https://download.nine-chronicles.com/apv.json for changes
 function checkForUpdate() {
@@ -27,7 +28,7 @@ function keepAlive() {
 
         log info "> Refreshing! Ding $((tempVar++))"
         
-        
+        queryGold        
         checkForUpdate
 
         log debug "  --display miner stats"

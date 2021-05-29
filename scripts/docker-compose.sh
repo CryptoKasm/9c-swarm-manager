@@ -71,9 +71,9 @@ EOF
       '--ice-server=turn://0ed3e48007413e7c2e638f13ddd75ad272c6c507e081bd76a75e4b7adc86c9af:0apejou+ycZFfwtREeXFKdfLj2gCclKzz5ZJ49Cmy6I=@turn-us5.planetarium.dev:3478',
       $DISABLE_MINING_ENTRY
       $DISABLE_CORS_ENTRY
+      $DISABLE_PRIVATE_KEY_ENTRY
       '--graphql-server',
       '--graphql-port=23061',
-      "--miner-private-key=$PRIVATE_KEY",
       '--tip-timeout=120']
 EOF
     done
@@ -120,6 +120,17 @@ function setMining() {
   fi
 }
 
+# Add/Remove arguments from docker-compose.yml
+function setAutoPrivateKey() {
+  if [ "$DISABLE_PRIVATE_KEY" == true ]; then 
+    DISABLE_PRIVATE_KEY_ENTRY=''
+    log trace "    --DISABLE_PRIVATE_KEY_ENTRY: $DISABLE_PRIVATE_KEY_ENTRY"
+  elif [ "$DISABLE_PRIVATE_KEY" == false ]; then
+    DISABLE_PRIVATE_KEY_ENTRY=''\"--miner-private-key=$PRIVATE_KEY\",''
+    log trace "    --DISABLE_PRIVATE_KEY_ENTRY: $DISABLE_PRIVATE_KEY_ENTRY"
+  fi   
+}
+  
 ###############################
 # TODO_MODIFY: Add function to test recreate only if different
 function dockerCompose() {
@@ -136,6 +147,7 @@ function dockerCompose() {
 
     setMining
     setCORSPolicy
+    setAutoPrivateKey
     buildComposeFile
 
     echo

@@ -129,7 +129,7 @@ function log() {
       echo -e "${std_line}";
       ;;    
     'error')
-      echo -e "${std_line}" >&2;
+      echo -e "${std_line}";
       # if [ "${debug_level}" -gt 0 ]; then
       #   echo -e "Here's a shell to debug with. 'exit 0' to continue. Other exit codes will abort - parent shell will terminate.";
       #   bash || exit "${?}";

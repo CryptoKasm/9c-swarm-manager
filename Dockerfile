@@ -58,6 +58,9 @@ ENV DEV_MODE="false"
 # Disable mining (Node only)
 ENV DISABLE_MINING="false"
 
+# Disable PrivateKey at runtime
+ENV DISABLE_PRIVATE_KEY="false"
+
 # Nine Chronicles Private Key **KEEP SECRET**
 ENV PRIVATE_KEY="PUT_YOUR_PRIVATE_KEY_HERE"
 

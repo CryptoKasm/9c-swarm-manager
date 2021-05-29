@@ -196,7 +196,10 @@ function saveARGs() {
     if [ "$DEV_MODE" == true ]; then 
         log debug "  --Developer Mode: Enabled"
 
-        if [[ "$PRIVATE_KEY" == "PUT_YOUR_PRIVATE_KEY_HERE" ]]; then
+        if [[ "$PRIVATE_KEY" == "DISABLE" ]]; then
+            DISABLE_PRIVATE_KEY="true"
+            USE_DEMO_KEY="false"
+        elif [[ "$PRIVATE_KEY" == "DEMO" ]]; then
             USE_DEMO_KEY="true"
         else
             USE_DEMO_KEY="false"
@@ -206,6 +209,7 @@ function saveARGs() {
         GRAPHQL_PORT="23075"
         PEER_PORT="31275"
 
+        log trace "    --Dev Override: [DISABLE_PRIVATE_KEY=$DISABLE_PRIVATE_KEY]"
         log trace "    --Dev Override: [USE_DEMO_KEY=$USE_DEMO_KEY]"
         log trace "    --Dev Override: [DISABLE_MINING=$DISABLE_MINING]"
         log trace "    --Dev Override: [DISABLE_CORS=$DISABLE_CORS]"
@@ -232,6 +236,7 @@ DEBUG=$DEBUG
 TRACE=$TRACE
 DEV_MODE=$DEV_MODE
 DISABLE_MINING=$DISABLE_MINING
+DISABLE_PRIVATE_KEY=$DISABLE_PRIVATE_KEY
 PRIVATE_KEY=$PRIVATE_KEY
 MINERS=$MINERS
 GRAPHQL_PORT=$GRAPHQL_PORT
@@ -250,6 +255,11 @@ EOF
         log error "    --unable to save to file: $argsFile"
     fi
 }
+
+# Apply default settings to arguments that werent given at runtime
+# function checkDefault() {
+
+# }
 
 # Combines functions to perform a precheck on start
 function preCheck() {

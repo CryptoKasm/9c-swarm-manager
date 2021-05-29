@@ -85,7 +85,6 @@ function runDockerImage() {
 
     log info "> Running docker image: $imageName"
     docker run -d -v "/var/run/docker.sock:/var/run/docker.sock" \
-    --env PRIVATE_KEY=000000000 \
     --env TRACE=1 \
     --env DEV_MODE=true \
     --name 9c-swarm-manager $imageName

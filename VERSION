@@ -1,5 +1,5 @@
 project="swarm-manager"
-version="1.1.0-alpha"
+version="1.1.1-alpha"
 docker="cryptokasm/9c-swarm-manager"
 github="https://github.com/CryptoKasm/9c-swarm-manager"
 commit=""
