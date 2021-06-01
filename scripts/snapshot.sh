@@ -61,7 +61,7 @@ refreshSnapshot() {
 
     cd latest-snapshot
     
-    log debug "  --downloading snapshot"
+    log debug "  --downloading snapshot (can take up to ~ 10mins)"
     curl -# -O $SNAPSHOT
 
     log debug "  --unzipping snapshot"

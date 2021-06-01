@@ -14,7 +14,7 @@ This project was created to provide an easy solution for those wanting to mine t
 
 ### Notes:
 
-- **<span style="color:green">TIP:</span> Windows Users: MAKE SURE TO START DOCKER, before continuing to [Section 2](#Linux).**
+- **<span style="color:green">TIP:</span> Windows Users: MAKE SURE TO START DOCKER!**
 
 - **<span style="color:red">WARNING:</span> Installing the Swarm Miner enables Hyper-V on Windows. This could cause issues with VMware Workstation if it is installed.**
 
@@ -86,17 +86,26 @@ DEBUG="1"
 # Enable/disable Advanced Debugging
 TRACE="0"
 
+# Development mode with less security and a demo account
+DEV_MODE="false"
+
+# Disable mining (Node only)
+DISABLE_MINING="false"
+
+# Disable PrivateKey at runtime
+DISABLE_PRIVATE_KEY="false"
+
 # Nine Chronicles Private Key **KEEP SECRET**
-PRIVATE_KEY=""
+PRIVATE_KEY="PUT_YOUR_PRIVATE_KEY_HERE"
 
 # Amount of miners to deploy
 MINERS="1"
 
 # GraphQL Forwarding Port
-GRAPHQL_PORT="23070"
+GRAPHQL_PORT="23062"
 
 # Peer Forwarding Port
-PEER_PORT="31270"
+PEER_PORT="31235"
 
 # Set MAX RAM Per Miner **PROTECTION FROM MEMORY LEAKS**
 RAM_LIMIT="4096M"
@@ -107,11 +116,37 @@ RAM_RESERVE="2048M"
 # Enable GraphQL Query Commands
 AUTHORIZE_GRAPHQL="1"
 
+# Enable/Disable CORS policy
+DISABLE_CORS="false"
+
 # Auto-restart after set time (in hours)
 AUTO_RESTART="2"
 
 # Filters to GREP out of miner logs (0 None, # of Miner, ALL)
 MINER_LOG_FILTERS="ALL"
+
+# Set MINER name (example)
+NAME_MINER_1="Joe"
+NAME_MINER_2="Joe"
+NAME_MINER_3="Joe"
+NAME_MINER_4="Joe"
+```
+
+```bash
+# Development Mode
+DEV_MODE="true"
+
+# Automatically enables these settings:
+DISABLE_MINING="true"
+DISABLE_CORS="true"
+GRAPHQL_PORT="23075"
+PEER_PORT="31275"
+
+# Enables the use of a DEMO account and ability to disable privatekey
+PRIVATE_KEY="DEMO"
+or
+PRIVATE_KEY="DISABLE"
+
 ```
 
 <br>
