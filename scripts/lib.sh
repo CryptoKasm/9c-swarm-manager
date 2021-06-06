@@ -6,6 +6,7 @@
 
 versionFile='./VERSION'
 argsFile='.args'
+composeFile='docker-compose.swarm.yml'
 
 #-----------------------------------------------------------
 # Terminal Style

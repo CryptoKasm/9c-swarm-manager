@@ -8,9 +8,6 @@
 # checkVERSION
 # checkParams
 
-# Variables
-composeFile='docker-compose.swarm.yml'
-
 # Generate docker-compose-override.yml
 function buildComposeFile() {
     log debug "  --building $composeFile"

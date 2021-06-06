@@ -82,8 +82,8 @@ ENV DISABLE_CORS="false"
 # Auto-restart after set time (in hours)
 ENV AUTO_RESTART="2"
 
-# Filters to GREP out of miner logs (0 None, # of Miner, ALL)
-ENV MINER_LOG_FILTERS="ALL"
+# Filters to GREP out of miner logs
+ENV MINER_LOG_FILTERS="DEFAULT"
 
 # Set MINER name (example)
 # NAME_MINER_1="Joe"
