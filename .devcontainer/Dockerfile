@@ -56,7 +56,7 @@ ENV DISABLE_MINING="false"
 ENV DISABLE_PRIVATE_KEY="false"
 
 # Nine Chronicles Private Key **KEEP SECRET**
-ENV PRIVATE_KEY="DISABLE"
+ENV PRIVATE_KEY="DEMO"
 
 # Amount of miners to deploy
 ENV MINERS="1"
@@ -81,6 +81,9 @@ ENV DISABLE_CORS="false"
 
 # Auto-restart after set time (in hours)
 ENV AUTO_RESTART="2"
+
+# Auto-clean after set time (in hours)
+ENV AUTO_CLEAN="24"
 
 # Filters to GREP out of miner logs
 ENV MINER_LOG_FILTERS="DEFAULT"

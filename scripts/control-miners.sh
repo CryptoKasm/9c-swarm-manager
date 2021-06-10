@@ -14,7 +14,7 @@ function controlMiner {
       ;;
 
     --down-all)
-      compose-docker -f $composeFile down -v --remove-orphans
+      docker-compose -f $composeFile down -v --remove-orphans
       ;;
 
     --restart)
@@ -27,7 +27,7 @@ function controlMiner {
       ;;
 
     --down)
-      compose-docker -f $composeFile down -v --remove-orphans $2
+      docker-compose -f $composeFile down -v --remove-orphans $2
       ;;
 
     *)

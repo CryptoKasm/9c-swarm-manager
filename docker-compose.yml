@@ -11,5 +11,4 @@ services:
     environment:
       - DEBUG=1
       - TRACE=1
-      - DEV_MODE=true
-      - PRIVATE_KEY=DISABLE
+      - PRIVATE_KEY=DEMO

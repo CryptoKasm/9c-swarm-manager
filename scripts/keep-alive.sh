@@ -1,6 +1,6 @@
 #!/bin/bash
 # source ./scripts/log.sh
-# source ./scripts/lib.sh
+source ./scripts/lib.sh
 # source ./scripts/graphql-queries.sh
 
 # Checks containers for errors
@@ -47,25 +47,51 @@ function autoRestart() {
     argName="NAME_MINER_${i}"
     CONTAINERNAME=(${!argName})
 
-    setTimer=$((AUTO_RESTART * 3600))
-    startTime=$(docker inspect --format='{{.State.StartedAt}}' $CONTAINERNAME | xargs date +%s -d)
-    currentTime=$(date +%s)
-    timeLapsed=$((currentTime - startTime))
+    setAutoRestart=$((AUTO_RESTART * 3600))
+    containerStartTime=$(docker inspect --format='{{.State.StartedAt}}' $CONTAINERNAME | xargs date +%s -d)
+    timeLapsed=$((currentTime - containerStartTime))
 
     log trace "    --[autoRestart] LOADING: $argName"
     log trace "    --[autoRestart] CONTAINER_NAME: $CONTAINERNAME"
-    log trace "    --[autoRestart] AUTO_RESTART: $AUTO_RESTART hr = $setTimer sec"
-    log trace "    --[autoRestart] START_TIME: $startTime"
+    log trace "    --[autoRestart] AUTO_RESTART: $AUTO_RESTART hr = $setAutoRestart sec"
+    log trace "    --[autoRestart] CONTAINER_START_TIME: $containerStartTime"
     log trace "    --[autoRestart] CURRENT_TIME: $currentTime"
     log trace "    --[autoRestart] TIME_LAPSED: $timeLapsed"
 
-    if [[ $timeLapsed -ge $setTimer ]]; then
+    if [[ $timeLapsed -ge $setAutoRestart ]]; then
       log debug "  --initiating restart for $CONTAINERNAME"
       controlMiner --restart $CONTAINERNAME
     else
       log debug "  --skipping restart for $CONTAINERNAME"
     fi
   done
+}
+
+# Auto clean miners after x hours
+function autoClean() {
+  log info "  --checking for auto-clean..."
+  # Check start time of manager container
+  # If current time is greater than x, stopd & clean containers
+  CONTAINERNAME="manager"
+
+  setAutoClean=$((AUTO_CLEAN * 3600))
+  timeLapsed=$((currentTime - startTimer))
+  
+  log trace "    --[autoClean] LOADING: $argName"
+  log trace "    --[autoClean] CONTAINER_NAME: $CONTAINERNAME"
+  log trace "    --[autoClean] AUTO_CLEAN: $AUTO_RESTART hr = $setAutoClean sec"
+  log trace "    --[autoClean] START_TIME: $startTimer"
+  log trace "    --[autoClean] CURRENT_TIME: $currentTime"
+  log trace "    --[autoClean] TIME_LAPSED: $timeLapsed"
+
+  if [[ $timeLapsed -ge $setAutoClean ]]; then
+    log debug "  --initiating auto-clean"
+    controlMiner --down-all
+    cleanDocker --dangling # Make this a config setting
+    restartSwarmManager
+  else
+    log debug "  --skipping auto-clean"
+  fi
 }
 
 # Live Logging
@@ -78,15 +104,15 @@ function liveLogging() {
   case $MINER_LOG_FILTERS in
 
     ALL)
-      LOGCMD="docker-compose -f $composeFile logs --tail=100 -f"
+      CMD="docker-compose -f $composeFile logs --tail=100 -f"
       ;;
 
     DEFAULT)
-      LOGCMD="docker-compose -f $composeFile logs --tail=100 -f | grep --color -i -E 'Mined a block|reorged|mining|Append failed'"
+      CMD="docker-compose -f $composeFile logs --tail=100 -f | grep --color -i -E 'Mined a block|reorged|mining|Append failed'"
       ;;
 
     MINIMAL)
-      LOGCMD="docker-compose -f $composeFile logs --tail=20 | grep --color -i -E 'Mined a block|reorged|mining|Append failed'"
+      CMD="docker-compose -f $composeFile logs --tail=20 | grep --color -i -E 'Mined a block|reorged|mining|Append failed'"
       ;;
 
     *)
@@ -95,9 +121,19 @@ function liveLogging() {
 
   esac
   
-  timeout -k $KILLTIME $RUNTIME $LOGCMD
+  timeout -k $KILLTIME $RUNTIME $CMD
 
   log info "[ LIVE-LOGGING - CLOSED ]"
+}
+
+# Display container stats
+function displayStats() {
+  log info "[ LIVE-STATS ]"
+
+  KILLTIME=5
+  RUNTIME=15m
+  CMD="docker stats --no-stream"
+  $CMD
 }
 
 ###############################
@@ -105,19 +141,23 @@ function liveLogging() {
 function keepAlive() {
     switchAlive=1
     tempVar=1
-    
+    startTimer=$(date +%s)
+
     while [ ${switchAlive} = 1 ]; do
+        currentTime=$(date +%s)
+        timeLapsed=0
+
         echo
         log info "[ KEEP-ALIVE ]"
         # checkForErrors
         checkForUpdates
         autoRestart
-
-        sleep 15s
-
-        liveLogging
-
+        autoClean
         echo
+        displayStats
+        
+        log debug "sleeping..."
+        sleep 15m
     done
 }
 ###############################

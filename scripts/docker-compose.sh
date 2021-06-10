@@ -35,6 +35,8 @@ EOF
   $CONTAINERNAME:
     image: $DOCKER_IMAGE
     container_name: $CONTAINERNAME
+    labels:
+      identifier: "cksm"
     mem_limit: $RAM_LIMIT
     mem_reservation: $RAM_RESERVE
     ports:
@@ -122,7 +124,7 @@ function setAutoPrivateKey() {
   if [ "$DISABLE_PRIVATE_KEY" == true ]; then 
     DISABLE_PRIVATE_KEY_ENTRY=''
     log trace "    --DISABLE_PRIVATE_KEY_ENTRY: $DISABLE_PRIVATE_KEY_ENTRY"
-  elif [ "$DISABLE_PRIVATE_KEY" == false ]; then
+  else
     DISABLE_PRIVATE_KEY_ENTRY=''\"--miner-private-key=$PRIVATE_KEY\",''
     log trace "    --DISABLE_PRIVATE_KEY_ENTRY: $DISABLE_PRIVATE_KEY_ENTRY"
   fi   

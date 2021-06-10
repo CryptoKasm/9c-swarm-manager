@@ -7,6 +7,7 @@ source ./scripts/docker-compose.sh
 source ./scripts/snapshot.sh
 source ./scripts/keep-alive.sh
 source ./scripts/control-miners.sh
+source ./scripts/control-docker.sh
 
 # Exit main script
 function exitMain() {

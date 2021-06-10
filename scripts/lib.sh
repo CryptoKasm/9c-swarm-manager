@@ -41,6 +41,11 @@ function intro() {
 # Useful Functions
 #-----------------------------------------------------------
 
+# Restart swarm-manager script from beginning
+function restartSwarmManager() {
+    ./swarm-manager.sh --start --keep-alive
+}
+
 # Check if user is root and grant permission if not
 function checkRoot() { 
     if [ "$EUID" -ne 0 ]; then
@@ -197,34 +202,35 @@ function saveARGs() {
     if [ "$DEV_MODE" == true ]; then 
         log debug "  --Developer Mode: Enabled"
 
-        if [[ "$PRIVATE_KEY" == "DISABLE" ]]; then
-            DISABLE_PRIVATE_KEY="true"
-            USE_DEMO_KEY="false"
-        elif [[ "$PRIVATE_KEY" == "DEMO" ]]; then
-            USE_DEMO_KEY="true"
-        else
-            USE_DEMO_KEY="false"
-        fi
         DISABLE_MINING="true"
         DISABLE_CORS="true"
         GRAPHQL_PORT="23075"
         PEER_PORT="31275"
 
-        log trace "    --Dev Override: [DISABLE_PRIVATE_KEY=$DISABLE_PRIVATE_KEY]"
-        log trace "    --Dev Override: [USE_DEMO_KEY=$USE_DEMO_KEY]"
         log trace "    --Dev Override: [DISABLE_MINING=$DISABLE_MINING]"
         log trace "    --Dev Override: [DISABLE_CORS=$DISABLE_CORS]"
         log trace "    --Dev Override: [GRAPHQL_PORT=$GRAPHQL_PORT]"
         log trace "    --Dev Override: [PEER_PORT=$PEER_PORT]"
     fi
 
-    if [[ "$USE_DEMO_KEY" == true ]]; then
+    # TODO: Add test to make sure private_key is proper length or throw error
+
+    if [[ "$PRIVATE_KEY" == "DISABLE" ]]; then
+        DISABLE_PRIVATE_KEY="true"
+    elif [[ "$PRIVATE_KEY" == "DEMO" ]]; then
         log debug "  --Using Demo Account"
         PRIVATE_KEY="10285a19fab2b4f7476efdaba07ed55e9b03790c4ff6f3fc7c6b2d0852a27fa2" 
     elif [[ "$PRIVATE_KEY" == "PUT_YOUR_PRIVATE_KEY_HERE" ]]; then
         log error "[saveARGS] PRIVATE_KEY not set! Please set at docker runtime!"
         exitMain
+    elif [[ ! "${#PRIVATE_KEY}" -eq "64" ]]; then
+        log error "[saveARGS] PRIVATE_KEY is invalid!"
+        exitMain
+    else 
+        log debug "  --PRIVATE_KEY is valid"
     fi
+
+    log trace "    --PRIVATE_KEY_LENGTH: ${#PRIVATE_KEY}"
 
     if [ -f $argsFile ]; then
         rm -f $argsFile
