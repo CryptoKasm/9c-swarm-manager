@@ -20,7 +20,7 @@ ARG UPGRADE_PACKAGES="false"
 # [Option] Enable non-root Docker access in container
 ARG ENABLE_NONROOT_DOCKER="true"
 # [Option] Use the OSS Moby CLI instead of the licensed Docker CLI
-ARG USE_MOBY="true"
+ARG USE_MOBY="false"
 # Set WORKDIR *Also determines generated container name*
 ARG WORKDIRP="/9c-swarm"
 WORKDIR ${WORKDIRP}
@@ -46,56 +46,7 @@ RUN apt-get update && apt-get install jq -y
 # Settings
 #-----------------------------------------------------------
 
-# Enable/Disable Debugging
-ENV DEBUG="1"
-
-# Enable/disable Advanced Debugging
-ENV TRACE="0"
-
-# Development mode with less security and a demo account
-ENV DEV_MODE="false"
-
-# Disable mining (Node only)
-ENV DISABLE_MINING="false"
-
-# Disable PrivateKey at runtime
-ENV DISABLE_PRIVATE_KEY="false"
-
-# Nine Chronicles Private Key **KEEP SECRET**
-ENV PRIVATE_KEY="PUT_YOUR_PRIVATE_KEY_HERE"
-
-# Amount of miners to deploy
-ENV MINERS="1"
-
-# GraphQL Forwarding Port
-ENV GRAPHQL_PORT="23062"
-
-# Peer Forwarding Port
-ENV PEER_PORT="31235"
-
-# Set MAX RAM Per Miner **PROTECTION FROM MEMORY LEAKS**
-ENV RAM_LIMIT="4096M"
-
-# Set MIN RAM Per Miner **SAVES RESOURCES FOR THAT CONTAINER**
-ENV RAM_RESERVE="2048M"
-
-# Enable GraphQL Query Commands
-ENV AUTHORIZE_GRAPHQL="1"
-
-# Enable/Disable CORS policy
-ENV DISABLE_CORS="false"
-
-# Auto-restart after set time (in hours)
-ENV AUTO_RESTART="2"
-
-# Auto-clean after set time (in hours)
-ENV AUTO_CLEAN="24"
-
-# Filters to GREP out of miner logs
-ENV MINER_LOG_FILTERS="DEFAULT"
-
-# Set MINER name (example)
-# NAME_MINER_1="Joe"
+ENV private_key="PUT_YOUR_PRIVATE_KEY_HERE"
 
 #-----------------------------------------------------------
 # Healthcheck & Entrypoint /w ARGs [--wait]
