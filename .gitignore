@@ -1,9 +1,9 @@
 # Ignore generated files & directories
-.args
+.arguments
 docker-compose.swarm.yml
 latest-snapshot
 vault
 9c-main-snapshot.zip
+private
 logs
-backup
 docs
