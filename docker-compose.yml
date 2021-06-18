@@ -9,6 +9,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker-host.sock
     environment:
-      - DEBUG=1
-      - TRACE=1
-      - PRIVATE_KEY=DEMO
+      - debug=true
+      - private_key=demo
+      - use_threaded_image=true
+      - thread_count=12

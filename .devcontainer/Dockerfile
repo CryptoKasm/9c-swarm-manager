@@ -40,56 +40,11 @@ RUN apt-get install jq -y
 # Settings
 #-----------------------------------------------------------
 
-# Enable/Disable Debugging
-ENV DEBUG="1"
-
-# Enable/disable Advanced Debugging
-ENV TRACE="1"
-
-# Development mode with less security and a demo account
-ENV DEV_MODE="true"
-
-# Disable mining (Node only)
-ENV DISABLE_MINING="false"
-
-# Disable PrivateKey at runtime
-ENV DISABLE_PRIVATE_KEY="false"
-
-# Nine Chronicles Private Key **KEEP SECRET**
-ENV PRIVATE_KEY="DEMO"
-
-# Amount of miners to deploy
-ENV MINERS="1"
-
-# GraphQL Forwarding Port
-ENV GRAPHQL_PORT="23075"
-
-# Peer Forwarding Port
-ENV PEER_PORT="31275"
-
-# Set MAX RAM Per Miner **PROTECTION FROM MEMORY LEAKS**
-ENV RAM_LIMIT="4096M"
-
-# Set MIN RAM Per Miner **SAVES RESOURCES FOR THAT CONTAINER**
-ENV RAM_RESERVE="2048M"
-
-# Enable GraphQL Query Commands
-ENV AUTHORIZE_GRAPHQL="1"
-
-# Enable/Disable CORS policy (For development)
-ENV DISABLE_CORS="false"
-
-# Auto-restart after set time (in hours)
-ENV AUTO_RESTART="2"
-
-# Auto-clean after set time (in hours)
-ENV AUTO_CLEAN="24"
-
-# Filters to GREP out of miner logs
-ENV MINER_LOG_FILTERS="DEFAULT"
-
-# Set MINER name (example)
-# NAME_MINER_1="Joe"
+ENV debug="true"
+ENV trace="true"
+ENV dev_mode="true"
+ENV private_key="demo"
+ENV enable_graphql_token="true"
 
 #-----------------------------------------------------------
 # Entrypoint /w ARGs

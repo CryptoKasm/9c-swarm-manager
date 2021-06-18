@@ -5,8 +5,9 @@
 #-----------------------------------------------------------
 
 versionFile='./VERSION'
-argsFile='.args'
+argsFile='.arguments'
 composeFile='docker-compose.swarm.yml'
+threadedImage='cryptokasm/ninechronicles-headless:v100050.T'
 
 #-----------------------------------------------------------
 # Terminal Style
@@ -154,7 +155,7 @@ function checkParams() {
     newDOCKER_IMAGE=$(echo $newBUILDPARAMS | jq -r '.docker')
     newSNAPSHOT=$(echo $newBUILDPARAMS | jq -r '.snapshotPaths[0]')
 
-    log trace "    --newURL: $newBUILDPARAMS"
+    # log trace "    --newURL: $newBUILDPARAMS"
     log trace "    --newAPV: $newAPV"
     log trace "    --newDockerImage: $newDOCKER_IMAGE"
     log trace "    --newSnapshotURL: $newSNAPSHOT"
@@ -199,61 +200,60 @@ function checkARGs() {
 function saveARGs() {
     log info "> Saving runtime ARGS to file..."
 
-    if [ "$DEV_MODE" == true ]; then 
-        log debug "  --Developer Mode: Enabled"
-
-        DISABLE_MINING="true"
-        DISABLE_CORS="true"
-        GRAPHQL_PORT="23075"
-        PEER_PORT="31275"
-
-        log trace "    --Dev Override: [DISABLE_MINING=$DISABLE_MINING]"
-        log trace "    --Dev Override: [DISABLE_CORS=$DISABLE_CORS]"
-        log trace "    --Dev Override: [GRAPHQL_PORT=$GRAPHQL_PORT]"
-        log trace "    --Dev Override: [PEER_PORT=$PEER_PORT]"
-    fi
-
-    # TODO: Add test to make sure private_key is proper length or throw error
-
-    if [[ "$PRIVATE_KEY" == "DISABLE" ]]; then
-        DISABLE_PRIVATE_KEY="true"
-    elif [[ "$PRIVATE_KEY" == "DEMO" ]]; then
-        log debug "  --Using Demo Account"
-        PRIVATE_KEY="10285a19fab2b4f7476efdaba07ed55e9b03790c4ff6f3fc7c6b2d0852a27fa2" 
-    elif [[ "$PRIVATE_KEY" == "PUT_YOUR_PRIVATE_KEY_HERE" ]]; then
+    # TODO: 1. Set environment variables as lower case
+    # TODO: 2. Compare with settings.conf, if env variable given is different add to args file
+    if [[ "${private_key:-PUT_YOUR_PRIVATE_KEY_HERE}" == "PUT_YOUR_PRIVATE_KEY_HERE" ]]; then
         log error "[saveARGS] PRIVATE_KEY not set! Please set at docker runtime!"
         exitMain
-    elif [[ ! "${#PRIVATE_KEY}" -eq "64" ]]; then
+    elif [[ "$private_key" == "disable" ]]; then
+        disable_private_key="true"
+    elif [[ "$private_key" == "demo" ]]; then
+        log debug "  --Using Demo Account"
+        private_key="10285a19fab2b4f7476efdaba07ed55e9b03790c4ff6f3fc7c6b2d0852a27fa2" 
+    elif [[ ! "${#private_key}" -eq "64" ]]; then
         log error "[saveARGS] PRIVATE_KEY is invalid!"
         exitMain
     else 
         log debug "  --PRIVATE_KEY is valid"
     fi
 
-    log trace "    --PRIVATE_KEY_LENGTH: ${#PRIVATE_KEY}"
+    log trace "    --PRIVATE_KEY_LENGTH: ${#private_key}"
 
     if [ -f $argsFile ]; then
         rm -f $argsFile
         log trace "    --deleted old file"
     fi
+    
+    if [[ ${debug:-false} == true ]]; then 
+        debug=1
+        log trace "    --Debug Enabled: $debug"
+    fi
+    
+    if [[ ${trace:-false} == true ]]; then 
+        trace=1
+        log trace "    --Trace Enabled: $trace"
+    fi
 
     log trace "    --creating new file"
     cat <<EOF >$argsFile
-DEBUG=$DEBUG
-TRACE=$TRACE
-DEV_MODE=$DEV_MODE
-DISABLE_MINING=$DISABLE_MINING
-DISABLE_PRIVATE_KEY=$DISABLE_PRIVATE_KEY
-PRIVATE_KEY=$PRIVATE_KEY
-MINERS=$MINERS
-GRAPHQL_PORT=$GRAPHQL_PORT
-PEER_PORT=$PEER_PORT
-RAM_LIMIT=$RAM_LIMIT
-RAM_RESERVE=$RAM_RESERVE
-AUTHORIZE_GRAPHQL=$AUTHORIZE_GRAPHQL
-DISABLE_CORS=$DISABLE_CORS
-AUTO_RESTART=$AUTO_RESTART
-MINER_LOG_FILTERS=$MINER_LOG_FILTERS
+DEBUG=${debug:-0}
+TRACE=${trace:-0}
+DEV_MODE=${dev_mode:-false}
+DISABLE_MINING=${disable_mining:-false}
+DISABLE_PRIVATE_KEY=${disable_private_key:-false}
+PRIVATE_KEY=${private_key:-PUT_YOUR_PRIVATE_KEY_HERE}
+MINERS=${miners:-1}
+GRAPHQL_PORT=${graphql_port:-23070}
+PEER_PORT=${peer_port:-31270}
+RAM_LIMIT=${ram_limit:-4096M}
+RAM_RESERVE=${ram_reserve:-2048M}
+ENABLE_GRAPHQL_TOKEN=${enable_graphql_token:-false}
+DISABLE_CORS=${disable_cors:-false}
+AUTO_RESTART=${auto_restart:-0}
+AUTO_CLEAN=${auto_clean:-0}
+MINER_LOG_FILTERS=${miner_log_filters:-default}
+USE_THREADED_IMAGE=${use_threaded_image:-false}
+THREAD_COUNT=${thread_count:-1}
 EOF
 
     if [ -f $argsFile ]; then

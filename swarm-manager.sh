@@ -91,20 +91,6 @@ function runDockerImage() {
     --name 9c-swarm-manager $imageName
 }
 
-# Test dockerfile
-function testDockerfile() {
-    title "> DockerFile Testing"
-    log debug "  --[Dockerfile]: ENV DEBUG=$DEBUG"
-    log debug "  --[Dockerfile]: ENV PRIVATE_KEY=$PRIVATE_KEY"
-    log debug "  --[Dockerfile]: ENV MINERS=$MINERS"
-    log debug "  --[Dockerfile]: ENV GRAPHQL_PORT=$GRAPHQL_PORT"
-    log debug "  --[Dockerfile]: ENV PEER_PORT=$PEER_PORT"
-    log debug "  --[Dockerfile]: ENV RAM_LIMIT=$RAM_LIMIT"
-    log debug "  --[Dockerfile]: ENV RAM_RESERVE=$RAM_RESERVE"
-    log debug "  --[Dockerfile]: ENV AUTHORIZE_GRAPHQL=$AUTHORIZE_GRAPHQL"
-    log debug "  --[Dockerfile]: ENV AUTO_RESTART=$AUTO_RESTART"
-}
-
 ###############################
 function swarmManager() {   
     intro

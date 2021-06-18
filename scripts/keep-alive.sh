@@ -156,7 +156,7 @@ function keepAlive() {
         echo
         displayStats
         
-        log debug "sleeping..."
+        log debug "--------------------------------"
         sleep 15m
     done
 }

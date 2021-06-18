@@ -71,6 +71,8 @@ EOF
       $DISABLE_MINING_ENTRY
       $DISABLE_CORS_ENTRY
       $DISABLE_PRIVATE_KEY_ENTRY
+      $USE_THREADS_ENTRY
+      $ENABLE_GRAPHQL_TOKEN_ENTRY
       '--graphql-server',
       '--graphql-port=23061',
       '--tip-timeout=120']
@@ -101,7 +103,7 @@ EOF
 function setCORSPolicy() {  
   if [ "$DISABLE_CORS" == false ]; then 
     DISABLE_CORS_ENTRY=''
-    log trace "    --DISABLE_CORS_ENTRY: $DISABLE_CORS_ENTRY"
+    log trace "    --DISABLE_CORS_ENTRY: false"
   elif [ "$DISABLE_CORS" == true ]; then
     DISABLE_CORS_ENTRY=''\'--no-cors\',''
     log trace "    --DISABLE_CORS_ENTRY: $DISABLE_CORS_ENTRY"
@@ -112,7 +114,7 @@ function setCORSPolicy() {
 function setMining() {  
   if [ "$DISABLE_MINING" == false ]; then 
     DISABLE_MINING_ENTRY=''
-    log trace "    --DISABLE_MINING_ENTRY: $DISABLE_MINING_ENTRY"
+    log trace "    --DISABLE_MINING_ENTRY: false"
   elif [ "$DISABLE_MINING" == true ]; then
     DISABLE_MINING_ENTRY=''\'--no-miner\',''
     log trace "    --DISABLE_MINING_ENTRY: $DISABLE_MINING_ENTRY"
@@ -123,13 +125,37 @@ function setMining() {
 function setAutoPrivateKey() {
   if [ "$DISABLE_PRIVATE_KEY" == true ]; then 
     DISABLE_PRIVATE_KEY_ENTRY=''
-    log trace "    --DISABLE_PRIVATE_KEY_ENTRY: $DISABLE_PRIVATE_KEY_ENTRY"
+    log trace "    --DISABLE_PRIVATE_KEY_ENTRY: true"
   else
     DISABLE_PRIVATE_KEY_ENTRY=''\"--miner-private-key=$PRIVATE_KEY\",''
     log trace "    --DISABLE_PRIVATE_KEY_ENTRY: $DISABLE_PRIVATE_KEY_ENTRY"
   fi   
 }
-  
+
+# Add/Remove arguments from docker-compose.yml
+function setGraphqlToken() {
+  if [ "$ENABLE_GRAPHQL_TOKEN" == true ]; then 
+    ENABLE_GRAPHQL_TOKEN_ENTRY=''\'--graphql-secret-token-path=/secret/token\',''
+    log trace "    --ENABLE_GRAPHQL_TOKEN_ENTRY: $ENABLE_GRAPHQL_TOKEN_ENTRY"
+  else
+    ENABLE_GRAPHQL_TOKEN_ENTRY=''
+    log trace "    --ENABLE_GRAPHQL_TOKEN_ENTRY: false"
+  fi   
+}
+
+# Add/Remove arguments from docker-compose.yml
+function setThreaded() {
+  if [ "$USE_THREADED_IMAGE" == true ]; then 
+    DOCKER_IMAGE=$threadedImage
+    USE_THREADS_ENTRY=''\'--miner-count=$THREAD_COUNT\',''
+    log trace "    --USE_THREADED_IMAGE: $USE_THREADED_IMAGE"
+    log trace "    --USE_THREADS_ENTRY: $USE_THREADS_ENTRY"
+  else
+    USE_THREADS_ENTRY=''
+    log trace "    --USE_THREADS_ENTRY: false"
+  fi   
+}
+
 ###############################
 # TODO_MODIFY: Add function to test recreate only if different
 function dockerCompose() {
@@ -147,6 +173,8 @@ function dockerCompose() {
     setMining
     setCORSPolicy
     setAutoPrivateKey
+    setGraphqlToken
+    setThreaded
     buildComposeFile
 
     echo
