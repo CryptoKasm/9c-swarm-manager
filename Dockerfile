@@ -40,7 +40,7 @@ RUN apt-get update \
     # Clean up
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/* ${WORKDIRP}/.devcontainer/library-scripts/
 
-RUN apt-get update && apt-get install jq -y
+RUN apt-get update && apt-get install jq unzip -y
 
 #-----------------------------------------------------------
 # Settings
