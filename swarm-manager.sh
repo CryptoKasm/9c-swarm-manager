@@ -22,8 +22,8 @@ function clean() {
     sudo rm -f $composeFile
     log debug "  --clean: latest-snapshot"
     sudo rm -rf latest-snapshot
-    log debug "  --clean: 9c-main-snapshot.zip"
-    sudo rm -f 9c-main-snapshot.zip
+    log debug "  --clean: zips"
+    sudo rm -f *.zip
     log debug "  --clean: logs"
     sudo rm -rf logs
     log debug "  --clean: vault"
