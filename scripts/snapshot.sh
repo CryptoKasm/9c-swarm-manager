@@ -2,77 +2,166 @@
 # source ./scripts/log.sh
 # source ./scripts/lib.sh
 # checkARGs
+# checkParams
 
-# Set: Variables
+# Set variables
 SNAPDIR="latest-snapshot"
 SNAPUNZIP="$SNAPDIR/9c-main"
-SNAPZIP="9c-main-snapshot.zip"
+SNAPZIP="state_latest.zip"
 composeFile='docker-compose.swarm.yml'
 
-# Copy: Snapshot to Volumes
-copyVolume(){
+# Copy snapshot to volumes
+function copyVolume(){
     log info "> Copying snapshot to volumes..."
+    
+    cd $SNAPDIR    
 
     for ((i=1; i<=$MINERS; i++)); do
         argName="NAME_MINER_${i}"
         CONTAINERNAME=(${!argName})
 
         log debug "  --volume for $CONTAINERNAME"
-        sudo docker cp . $CONTAINERNAME:/app/data/
+        docker cp . $CONTAINERNAME:/app/data/
     done
 
     cd ..
 }
 
-# Refresh: Snapshot
-# TODO_MODIFY: Add sample snapshot for development
-refreshSnapshot() {
-    log info "> Refreshing snapshot..."
-    log trace "    --SNAPDIR: $SNAPDIR"
-    log trace "    --SNAPUNZIP: $SNAPUNZIP"
-    log trace "    --SNAPZIP: $SNAPZIP"
+# Check, download, extract snapshot partitions
+function refreshSnapshotPartitions() {
+        log info "> Updating snapshot partitions..."
 
-    if [[ "$TRACE" == "1" ]]; then 
-        log info "  --cleaning docker container"
-        docker-compose -f $composeFile down -v --remove-orphans
-        docker-compose -f $composeFile up -d
-        docker-compose -f $composeFile stop
-    else
-        log info "  --cleaning docker container"
-        {
-        docker-compose -f $composeFile down -v --remove-orphans
-        docker-compose -f $composeFile up -d
-        docker-compose -f $composeFile stop
-        } &> /dev/null
-    fi
-
-    if [ -d $SNAPUNZIP ]; then
-        log debug "  --clean: $SNAPDIR"
-        rm -rf latest-snapshot/* 
-
-        if [ -f "$SNAPZIP" ]; then
-            log debug "  --clean: $SNAPZIP"
-            rm -f $SNAPZIP
+        if [[ "$TRACE" == "1" ]]; then 
+            log info "  --cleaning docker container"
+            docker-compose -f $composeFile down -v --remove-orphans
+            docker-compose -f $composeFile up -d
+            docker-compose -f $composeFile stop
+        else
+            log info "  --cleaning docker container"
+            {
+            docker-compose -f $composeFile down -v --remove-orphans
+            docker-compose -f $composeFile up -d
+            docker-compose -f $composeFile stop
+            } &> /dev/null
         fi
-    else
-        log debug "  --create dir: latest-snapshot"
-        mkdir -p latest-snapshot
-    fi
 
-    cd latest-snapshot
-    
-    log debug "  --downloading snapshot (can take up to ~ 10mins)"
-    curl -# -O $SNAPSHOT
+        baseUrl="https://snapshots.nine-chronicles.com/main/e7922c/partition/"
+        filePath=$SNAPDIR
+        latest="${baseUrl}latest.json"
+        latestState="${baseUrl}state_latest.zip"
 
-    log debug "  --unzipping snapshot"
-    unzip 9c-main-snapshot.zip &> /dev/null
-    sudo chmod -R 700 .
-    mv 9c-main-snapshot.zip ../
+        log trace "    --baseURL: $baseUrl"
+        log trace "    --filePath: $filePath"
+        log trace "    --latest: $latest"
+        log trace "    --latestState: $latestState"
 
-    copyVolume
+        log debug "  --cleaning old zip files..."
+        rm *.zip &> /dev/null
+
+        log debug "  --checking if directory exists..."
+        if [ -d $filePath ]; then
+                log debug "  --cleaning directory: $filePath"
+                rm -rf $filePath
+        fi
+        log debug "  --creating directory: $filePath"
+        mkdir -p $filePath
+
+        declare -A arrayBlockEpoch
+        declare -A arrayTxEpoch
+        declare -A arrayPreviousBlockEpoch
+        declare -A arrayPreviousTxEpoch
+
+        epoch=$(curl -s $latest \
+                -s \
+                -L \
+                -H "Cache-Control: no-cache, no-store, must-revalidate" \
+                -H "Pragma: no-cache" \
+                -H "Expires: 0")
+        arrayBlockEpoch[0]=$(echo $epoch | jq -r '.BlockEpoch')
+        arrayTxEpoch[0]=$(echo $epoch | jq -r '.TxEpoch')
+        arrayPreviousBlockEpoch[0]=$(echo $epoch | jq -r '.PreviousBlockEpoch')
+        arrayPreviousTxEpoch[0]=$(echo $epoch | jq -r '.PreviousTxEpoch')
+
+        log trace "    --epoch: $epoch"
+        log trace "    --blockEpoch: ${arrayBlockEpoch[0]}"
+        log trace "    --txEpoch: ${arrayTxEpoch[0]}"
+        log trace "    --previousBlockEpoch: ${arrayPreviousBlockEpoch[0]}"
+        log trace "    --previousTxEpoch: ${arrayPreviousTxEpoch[0]}"
+
+        log debug "  --calculating total amount of snapshots to download..."
+
+        lastEpoch=false
+        i=0
+        while [ ${lastEpoch} != true ]; do
+                
+                nextEpochMeta="${baseUrl}snapshot-${arrayPreviousBlockEpoch[${i}]}-${arrayPreviousTxEpoch[${i}]}.json"
+                log trace "    --nextEpochMeta: $nextEpochMeta"
+                ((i++))
+                epoch=$(curl -s $nextEpochMeta \
+                        -s \
+                        -L \
+                        -H "Cache-Control: no-cache, no-store, must-revalidate" \
+                        -H "Pragma: no-cache" \
+                        -H "Expires: 0")
+                arrayBlockEpoch[${i}]=$(echo $epoch | jq -r '.BlockEpoch')
+                arrayTxEpoch[${i}]=$(echo $epoch | jq -r '.TxEpoch')
+                arrayPreviousBlockEpoch[${i}]=$(echo $epoch | jq -r '.PreviousBlockEpoch')
+                arrayPreviousTxEpoch[${i}]=$(echo $epoch | jq -r '.PreviousTxEpoch')
+
+                log trace "    --epoch: $epoch"
+                log trace "    --blockEpoch: ${arrayBlockEpoch[${i}]}"
+                log trace "    --txEpoch: ${arrayTxEpoch[${i}]}"
+                log trace "    --previousBlockEpoch: ${arrayPreviousBlockEpoch[${i}]}"
+                log trace "    --previousTxEpoch: ${arrayPreviousTxEpoch[${i}]}"
+
+                if [ 0 -eq ${arrayPreviousBlockEpoch[${i}]} ]; then
+                        log trace "    --previousBlockEpoch is 0"
+                        lastEpoch=true
+                fi
+                
+        done
+
+        log debug "  --number of snapshot partitions to download: ${#arrayBlockEpoch[*]} "
+
+        for ((i=0; i<${#arrayBlockEpoch[@]}; i++)); do
+                filename="snapshot-${arrayBlockEpoch[${i}]}-${arrayTxEpoch[${i}]}.zip"
+                log debug "  --downloading: $filename"
+                nextSnapshot="${baseUrl}${filename}"
+                curl -# $nextSnapshot -o $filename
+                
+                log trace "    --arrayBlockEpoch: ${arrayBlockEpoch[${i}]}"
+                log trace "    --arrayTxEpoch: ${arrayTxEpoch[${i}]}"
+                log trace "    --filename: ${filename}"
+                log trace "    --nextSnapshot: ${nextSnapshot}"
+        done
+
+        filename="state_latest.zip"
+        log debug "  --downloading latest_state.zip"
+        curl -# $latestState -o $filename
+
+        reverseOrder=$((${#arrayBlockEpoch[@]}-1))
+        for ((i=$reverseOrder; i>=0; i--)); do
+                filename="snapshot-${arrayBlockEpoch[${i}]}-${arrayTxEpoch[${i}]}.zip"
+                log debug "  --extracting: $filename"
+                nextSnapshot="${baseUrl}${filename}"
+                unzip -o -q $filename -d $filePath
+                
+                log trace "    --arrayBlockEpoch: ${arrayBlockEpoch[${i}]}"
+                log trace "    --arrayTxEpoch: ${arrayTxEpoch[${i}]}"
+                log trace "    --filename: ${filename}"
+                log trace "    --nextSnapshot: ${nextSnapshot}"
+        done
+
+        filename="state_latest.zip"
+        log debug "  --extracting latest_state.zip"
+        unzip -o -q $filename -d $filePath
+
+        sudo chmod -R 700 $filePath
+
+        copyVolume
 }
 
-# Test: Refresh if volume is missing
+# Refresh if volume is missing
 testVol() {
     log info "> Checking volumes"
 
@@ -101,7 +190,7 @@ testVol() {
     done
 }
 
-# Test: Ignore Volume test if docker containers are running
+# Ignore Volume test if docker containers are running
 testDockerRunning() {
     if [ ! "$(docker ps -qf "name=^9c-swarm")" ]; then
         log debug "  --containers are not running"
@@ -111,21 +200,21 @@ testDockerRunning() {
     fi
 }
 
-# Test: Refresh if older than 2 hrs
+# Refresh if older than 2 hrs
 testAge() {
     if [ -d "$SNAPUNZIP" ] && [ -f "$SNAPZIP" ]; then
         log debug "  --snapshot was found"
         sudo chmod -R 700 $SNAPUNZIP
-        if [[ $(find "9c-main-snapshot.zip" -type f -mmin +60) ]]; then
+        if [[ $(find "state_latest.zip" -type f -mmin +60) ]]; then
             log debug "  --refreshing snapshot" 
-            refreshSnapshot
+            refreshSnapshotPartitions
         else
             log debug "  --snapshot is current"
             testDockerRunning
         fi
     else
         log debug "  --snapshot not found"
-        refreshSnapshot
+        refreshSnapshotPartitions
     fi
 }
 
